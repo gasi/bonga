@@ -1,5 +1,5 @@
 indexing
-	description: "Objects that ..."
+	description: "Retrieves a list of FLICKR_PHOTOs matching certain search criterias."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -10,8 +10,9 @@ class
 inherit
 	FLICKR_REQUEST
 		redefine make end
+	FLICKR_XML_PHOTOS_SEARCH
 
-creation
+create {FLICKR_SERVICE}
 	make
 
 feature -- Constants
@@ -40,7 +41,7 @@ feature -- Flickr API Parameters
 
 	set_tags (value: STRING)
 	is
-		-- A comma-delimited strings of tags to be searched for
+		-- A string containing comma-delimited tags to be searched for
 	do
 		set_param ("tags", value)
 	end

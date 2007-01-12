@@ -1,5 +1,5 @@
 indexing
-	description: "Objects that ..."
+	description: "Elvis Presley is alive"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
@@ -7,40 +7,22 @@ indexing
 class
 	TRAFFIC_FLICKR_WIDGET
 
+creation
+	make
+
 feature -- Access
-	flickr_service: FLICKR_SERVICE
 
-feature -- Measurement
+feature -- Creation
+	make is
+		-- Default creation procedure
+		do
+		end
 
-feature -- Status report
+feature -- GUI
+	draw is
+		-- Draw the widget
+	do
 
-feature -- Status setting
-
-feature -- Cursor movement
-
-feature -- Element change
-
-feature -- Removal
-
-feature -- Resizing
-
-feature -- Transformation
-
-feature -- Conversion
-
-feature -- Duplication
-
-feature -- Miscellaneous
-
-feature -- Basic operations
-
-feature -- Obsolete
-
-feature -- Inapplicable
-
-feature {NONE} -- Implementation
-
-invariant
-	invariant_clause: True -- Your invariant here
+	end
 
 end

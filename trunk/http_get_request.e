@@ -1,5 +1,5 @@
 indexing
-	description: "Objects that ..."
+	description: "A small, simple wrapper around the EM_HTTP_PROTOCOL class that allows to very easily send get requests to HTTP servers."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -105,9 +105,5 @@ feature -- Callback
 	do
 		finished
 	end
-
-
-invariant
-	invariant_clause: True -- Your invariant here
 
 end

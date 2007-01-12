@@ -1,5 +1,5 @@
 indexing
-	description: "Objects that ..."
+	description: "Parent class for flickr web service methods."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -19,7 +19,16 @@ feature {NONE} -- Callback
 		-- Called when the HTTP_REQUEST has finished loading / an error occured
 	do
 		io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
+		translate_xml
 	end
+
+feature {NONE} -- XML
+	translate_xml is
+		-- Translates raw xml data
+	deferred
+
+	end
+
 
 feature {NONE} -- Creation
 	make is
@@ -58,7 +67,7 @@ feature -- Public features
 		http_request.start
 
 	ensure
-		is_sent: false
+		
 	end
 
 	get_param (name: STRING): STRING
@@ -89,7 +98,7 @@ feature -- Public features
 	do
 		params.put (value, name)
 	ensure
-		param_is_set: get_param (name) = "no00b"
+		param_is_set: get_param (name).is_equal (value)
 	end
 
 end
