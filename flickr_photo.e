@@ -9,6 +9,7 @@ class
 
 inherit
 	FLICKR_CONSTANTS
+	EM_SHARED_BITMAP_FACTORY
 
 create
 	make
@@ -20,7 +21,7 @@ feature -- Attributes
 	tags: STRING		-- Tags on the photo, separated by commas
 	owner: STRING		-- Photo's owner
 	server_id: INTEGER	-- ID of the server the photo is hosted on
-	farm_id: INTEGER	-- Id of the photo's farm
+	farm_id: INTEGER	-- ID of the photo's farm
 
 	is_loaded: BOOLEAN	-- Has the binary representation of the image already been loaded?
 	loading_has_failed: BOOLEAN -- Did an error occur while trying to download the photo?
@@ -28,6 +29,8 @@ feature -- Attributes
 	service: FLICKR_SERVICE -- Service that was used to retrieve the photo
 
 	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the photo has been loaded / en error occured
+
+	bitmap: EM_BITMAP -- Loaded photo
 
 feature {NONE} -- Private attributes
 	http_request: HTTP_GET_REQUEST
@@ -82,6 +85,8 @@ feature -- Creation
 feature {NONE} -- Callbacks
 	on_http_finished is
 		-- Called when the photo has finished loaded / a error has occured
+	local
+		p: ANY
 	do
 		is_loaded := not http_request.has_failed
 		loading_has_failed := http_request.has_failed
@@ -89,7 +94,10 @@ feature {NONE} -- Callbacks
 		if http_request.has_failed then
 			io.put_string ("Loading failed..")
 		else
-			
+			p := http_request.data.to_c
+			bitmap_factory.create_bitmap_from_c_array ($p, http_request.data.count)
+			--bitmap_factory.create_bitmap_from_image ("D:/Development/Projects/Eiffel/traffic_3_1_801/example/bonga_svn/test.bmp")
+			bitmap := bitmap_factory.last_bitmap
 		end
 		finished_event.publish ([])
 
