@@ -7,11 +7,14 @@ indexing
 class
 	FLICKR_SERVICE
 
+create
+	make_with_key
+
 feature -- Constants
 
 
 feature -- Access
-	http_request: HTTP_REQUEST
+	http_request: HTTP_GET_REQUEST
 	api_key: STRING
 
 feature -- Creation
@@ -27,7 +30,17 @@ feature -- Creation
 		end
 
 feature -- Photos
-	new_photos_search: FLICKR_PHOTOS_SEARCH
+	new_photos_search: FLICKR_PHOTOS_SEARCH is
+		-- Returns an unique FLICKR_PHOTOS_SEARCH object
+	require
+		is_set_up: true
+	do
+		create Result.make
+		Result.set_param ("api_key", api_key)
+	ensure
+		result_not_void: Result /= Void
+	end
+
 
 feature {NONE} -- Implementation
 
