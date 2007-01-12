@@ -15,6 +15,8 @@ inherit
 	EXCEPTIONS
 		export {NONE} all end
 
+	FLICKR_CONSTANTS
+
 creation
 	make
 
@@ -24,10 +26,44 @@ feature -- Callback
 			-- photo has finished loading
 	do
 		if flickr_photo.is_loaded then
+			-- Remove old image
+			if flickr_image /= flickr_image then
+				remove_component (flickr_image)
+			end
+
+			-- Load new image into an image widget
 			create flickr_image.make_from_bitmap (flickr_photo.bitmap)
+			flickr_image.set_position (10, 240)
 			add_component (flickr_image)
+
+			-- Fill label with information about the picture
+			flickr_info.set_text (flickr_photo.tags)
+			-- Move the information label, so it's not overlapping with the picture
+			flickr_info.set_position (10, flickr_image.y + flickr_image.height + 10)
 		end
 	end
+
+	on_map_click (event: EM_MOUSEBUTTON_EVENT) is
+			-- User clicked on map - he might have selected a stop
+	do
+		-- Has a new origin been selected?
+		if map_widget.marked_origin /= void and then map_widget.marked_origin /= flickr_place then
+
+			-- Search for the given tags
+			flickr_search := flickr_service.new_photos_search
+			flickr_search.set_tag_mode (flickr_tag_mode_all)
+			flickr_search.set_tags (map_widget.map.name +"," +  map_widget.marked_origin.name)
+			flickr_search.set_per_page (1)
+			flickr_search.send
+
+			-- Load a predefined photo
+			create flickr_photo.make (flickr_service, "348064128", "effac0c55f", "pic", map_widget.map.name + "," + map_widget.marked_origin.name, "gasi", 1, 125)
+			flickr_photo.finished_event.subscribe (agent photo_finished)
+			flickr_photo.load
+			flickr_place := map_widget.marked_origin
+		end
+	end
+
 
 -- [/bonga]
 
@@ -110,22 +146,6 @@ feature -- Interface
 			create path_description.make_empty
 			create minimal_switches_checkbox.make_from_text ("Min Sw")
 
-			-- [bonga]
-			create flickr_widget.make
-			--flickr_widget.set_position (0, 200)
-			--add_component (flickr_widget)
-			--toolbar_panel_left.add_widget (flickr_widget)
-
-			network_subsystem.enable -- [TODO] disable
-			create flickr_image.make_void_surface
-
-			create flickr_service.make_with_key ("eb67de26011147f6cf0176e79506e2d0")
-			create flickr_photo.make (flickr_service, "348064128", "effac0c55f", "pic", "none", "gasi", 1, 125)
-			flickr_photo.finished_event.subscribe (agent photo_finished)
-			flickr_photo.load
-
-			-- [/bonga]
-
 			-- Has to be defined before toolpanel, because otherwise
 			-- gl_clear_color cleans whole screen
 			if video_subsystem.opengl_enabled then
@@ -151,32 +171,32 @@ feature -- Interface
 
 			-- Building labels
 			traffic_building_label.set_position(10,40)
-			toolbar_panel_left.add_widget (traffic_building_label)
+			--toolbar_panel_left.add_widget (traffic_building_label)
 			traffic_building_name.set_position(10,60)
 			traffic_building_name.set_dimension (150,20)
-			toolbar_panel_left.add_widget (traffic_building_name)
+			--toolbar_panel_left.add_widget (traffic_building_name)
 
 			-- Building buttons
 			load_buildings_button.set_position (10, 175)
 			load_buildings_button.clicked_event.subscribe (agent load_buildings_clicked)
-			toolbar_panel_left.add_widget (load_buildings_button)
+			--toolbar_panel_left.add_widget (load_buildings_button)
 			load_buildings_along_lines_button.set_position(10,225)
 			load_buildings_along_lines_button.clicked_event.subscribe (agent map_widget.add_buildings_along_lines)
-			toolbar_panel_left.add_widget (load_buildings_along_lines_button)
+			--toolbar_panel_left.add_widget (load_buildings_along_lines_button)
 			delete_buildings_button.set_position (10, 275)
 			delete_buildings_button.clicked_event.subscribe (agent delete_buildings_clicked)
-			toolbar_panel_left.add_widget (delete_buildings_button)
+			--toolbar_panel_left.add_widget (delete_buildings_button)
 
 			-- Combox for building XML selection
 			building_combo_title.set_position (10,100)
-			toolbar_panel_left.add_widget (building_combo_title)
+			--toolbar_panel_left.add_widget (building_combo_title)
 			building_combo_box.set_position (10,125)
 			building_combo_box.set_optimal_dimension (150, 20)
 			building_combo_box.resize_to_optimal_dimension
 			building_combo_box.set_background_color (create {EM_COLOR}.make_white)
 			building_combo_box.set_selected_index (1)
 			building_combo_box.selection_changed_event.subscribe (agent building_combo_selection_changed(?))
-			toolbar_panel_left.add_widget (building_combo_box)
+			--toolbar_panel_left.add_widget (building_combo_box)
 
 			-- Path description
 			path_description.set_position (5, 325)
@@ -356,6 +376,33 @@ feature -- Interface
 			traffic_line_ride_button.set_background_color (create {EM_COLOR}.make_with_rgb (127, 127, 127))
 			toolbar_panel.add_widget (traffic_line_ride_button)
 			traffic_line_ride_button.hide
+
+			-- [bonga]
+
+			create flickr_service.make_with_key (Flickr_api_key)
+			Network_subsystem.enable -- [TODO] disable again
+
+			-- title
+			create flickr_title.make_from_text ("flickr")
+			flickr_title.set_position (10, 200)
+			toolbar_panel_left.add_widget (flickr_title)
+			map_widget.mouse_clicked_event.subscribe (agent on_map_click (?))
+
+			-- logo
+			create flickr_logo.make_from_file ("logo.png")
+			flickr_logo.set_position (10, 200)
+			toolbar_panel_left.add_widget (flickr_logo)
+
+			-- image
+			-- 240,10 - 180x??
+
+			-- info
+			create flickr_info.make_from_text ("No image loaded.")
+			flickr_info.set_position (10, 240)
+			flickr_info.set_background_color (bg_color)
+			add_component (flickr_info)
+
+			-- [/BONGA]
 
 			-- adding zurich_big.xml as default using platform independent paths
 			s := fs.pathname ("..", "map")
@@ -647,6 +694,14 @@ feature {NONE} -- Implementation
 	flickr_photo: FLICKR_PHOTO
 	flickr_image: EM_IMAGEPANEL
 	flickr_widget: TRAFFIC_FLICKR_WIDGET
+	flickr_info: EM_LABEL
+	flickr_place: TRAFFIC_PLACE
+	flickr_search: FLICKR_PHOTOS_SEARCH
+
+	-- widgets
+	flickr_logo: EM_IMAGEPANEL
+
+	flickr_title: EM_LABEL
 			-- Displays an image from flickr
 	-- [/bonga]
 

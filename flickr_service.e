@@ -1,5 +1,5 @@
 indexing
-	description: "Objects that ..."
+	description: "Main interface to the flickr web service. Needed in order to create any FLICKR_REQUEST objects."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"

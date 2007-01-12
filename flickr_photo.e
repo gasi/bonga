@@ -28,7 +28,7 @@ feature -- Attributes
 
 	service: FLICKR_SERVICE -- Service that was used to retrieve the photo
 
-	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the photo has been loaded / en error occured
+	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the photo has been loaded or en error occured
 
 	bitmap: EM_BITMAP -- Loaded photo
 
@@ -83,8 +83,9 @@ feature -- Creation
 	end
 
 feature {NONE} -- Callbacks
+
 	on_http_finished is
-		-- Called when the photo has finished loaded / a error has occured
+		-- Called when the photo has finished loading or an error has occured
 	local
 		p: ANY
 	do
@@ -94,16 +95,20 @@ feature {NONE} -- Callbacks
 		if http_request.has_failed then
 			io.put_string ("Loading failed..")
 		else
+			-- Using SDL, create a EM_BITMAP from the picture in memory
 			p := http_request.data.to_c
 			bitmap_factory.create_bitmap_from_c_array ($p, http_request.data.count)
-			--bitmap_factory.create_bitmap_from_image ("D:/Development/Projects/Eiffel/traffic_3_1_801/example/bonga_svn/test.bmp")
 			bitmap := bitmap_factory.last_bitmap
+
+			-- Resize image to 180px width so it fits into the existing city3d GUI
+			bitmap.transform (180 / bitmap.width, 180 / bitmap.width, 0)
 		end
 		finished_event.publish ([])
 
 	end
 
 feature -- Status
+
 	http_host: STRING is
 		-- Returns the http host of the farm
 	once
@@ -113,7 +118,7 @@ feature -- Status
 	http_file: STRING is
 		-- Returns the path where the photo is stored on the server
 	once
-		Result := "/" + server_id.out + "/" + id + "_" + secret + "_s.jpg"
+		Result := "/" + server_id.out + "/" + id + "_" + secret + "_m.jpg"
 	end
 
 feature -- Public features
@@ -132,7 +137,7 @@ feature -- Public features
 		http_request.finished_event.subscribe (agent on_http_finished)
 		http_request.start
 	ensure
-
+		
 	end
 
 
