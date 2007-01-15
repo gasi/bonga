@@ -1,5 +1,5 @@
 indexing
-	description: "Parent class for flickr web service methods."
+	description: "Base class for Flickr web service methods."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -18,15 +18,14 @@ feature {NONE} -- Callback
 	on_http_finished is
 		-- Called when the HTTP_REQUEST has finished loading / an error occured
 	do
-		io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
-		translate_xml
+		--io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
+		parse_from_string (http_request.data.out)
 	end
 
 feature {NONE} -- XML
-	translate_xml is
+	parse_from_string (a_string:STRING)
 		-- Translates raw xml data
 	deferred
-
 	end
 
 
@@ -67,7 +66,7 @@ feature -- Public features
 		http_request.start
 
 	ensure
-		
+
 	end
 
 	get_param (name: STRING): STRING
@@ -76,7 +75,7 @@ feature -- Public features
 		-- already been set or an empty string otherwise
 	require
 		name_not_void: name /= Void
-		name_not_empty: name.count > 0
+		name_not_empty: not name.is_empty
 	do
 		params.search (name)
 
@@ -93,7 +92,7 @@ feature -- Public features
 		-- Generic feature to set any of the request's parameters
 	require
 		name_not_void: name /= Void
-		name_not_empty: name.count > 0
+		name_not_empty: not name.is_empty
 		value_not_void: value /= Void
 	do
 		params.put (value, name)

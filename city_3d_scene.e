@@ -745,6 +745,4 @@ feature {NONE} -- Implementation
 				end
 			end
 		end
-
-
 end
