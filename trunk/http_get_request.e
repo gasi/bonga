@@ -1,5 +1,5 @@
 indexing
-	description: "A small, simple wrapper around the EM_HTTP_PROTOCOL class that allows to very easily send get requests to HTTP servers."
+	description: "A small, simple wrapper around the EM_HTTP_PROTOCOL class that allows to easily send get requests to HTTP servers."
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"

@@ -1,5 +1,5 @@
 indexing
-	description: "Represents a photo hosted on flickr.com."
+	description: "Represents a photo hosted on Flickr"
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -12,7 +12,8 @@ inherit
 	EM_SHARED_BITMAP_FACTORY
 
 create
-	make
+	make,
+	make_from_metadata
 
 feature -- Attributes
 	id: STRING			-- Photo's unique ID
@@ -24,7 +25,7 @@ feature -- Attributes
 	farm_id: INTEGER	-- ID of the photo's farm
 
 	is_loaded: BOOLEAN	-- Has the binary representation of the image already been loaded?
-	loading_has_failed: BOOLEAN -- Did an error occur while trying to download the photo?
+	has_loading_failed: BOOLEAN -- Did an error occur while trying to download the photo?
 
 	service: FLICKR_SERVICE -- Service that was used to retrieve the photo
 
@@ -68,7 +69,7 @@ feature -- Creation
 		server_id := a_server_id
 
 		is_loaded := false
-		loading_has_failed := false
+		has_loading_failed := false
 
 		create finished_event
 	ensure
@@ -82,6 +83,43 @@ feature -- Creation
 		server_id_set: server_id = a_server_id
 	end
 
+	make_from_metadata (
+			a_id: STRING;
+			a_secret: STRING;
+			a_title: STRING;
+			a_owner: STRING;
+			a_farm_id: INTEGER;
+			a_server_id: INTEGER
+		 )
+		-- Creates a photo with given metadata
+	require
+		id_not_void_or_empty: a_id /= Void and then not a_id.is_empty
+		secret_not_void_or_empty: a_secret /= Void and then not a_secret.is_empty
+		title_not_void_or_empty: a_title /= Void and then not a_title.is_empty
+		owner_not_void_or_empty: a_owner /= Void and then not a_owner.is_empty
+		farm_id_non_negative: a_farm_id >= 0
+		server_id_non_negative: a_server_id >= 0
+	do
+		create id.make_from_string (a_id)
+		create secret.make_from_string (a_secret)
+		create title.make_from_string (a_title)
+		create owner.make_from_string (a_owner)
+
+		farm_id := a_farm_id
+		server_id := a_server_id
+
+		is_loaded := false
+		has_loading_failed := false
+	ensure
+		id_set: id.is_equal (a_id)
+		secret_set: secret.is_equal (a_secret)
+		title_set: title.is_equal (a_title)
+		owner_set: owner.is_equal (a_owner)
+		farm_id_set: farm_id = a_farm_id
+		server_id_set: server_id = a_server_id
+	end
+
+
 feature {NONE} -- Callbacks
 
 	on_http_finished is
@@ -90,7 +128,7 @@ feature {NONE} -- Callbacks
 		p: ANY
 	do
 		is_loaded := not http_request.has_failed
-		loading_has_failed := http_request.has_failed
+		has_loading_failed := http_request.has_failed
 
 		if http_request.has_failed then
 			io.put_string ("Loading failed..")
@@ -127,7 +165,7 @@ feature -- Public features
 	require
 		photo_not_yet_loaded: not is_loaded
 	do
-		loading_has_failed := false
+		has_loading_failed := false
 
 		io.put_string ("http_host: " + http_host + "%N")
 		io.put_string ("http_file: " + http_file + "%N")
@@ -137,8 +175,6 @@ feature -- Public features
 		http_request.finished_event.subscribe (agent on_http_finished)
 		http_request.start
 	ensure
-		
+
 	end
-
-
 end

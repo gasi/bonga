@@ -1,5 +1,5 @@
 indexing
-	description: "Elvis Presley is alive"
+	description: "Elvis left the building."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

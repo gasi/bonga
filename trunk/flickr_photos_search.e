@@ -15,11 +15,6 @@ inherit
 create {FLICKR_SERVICE}
 	make
 
-feature -- Constants
-
-feature -- Access
-	photos: FLICKR_PHOTO_LIST
-
 feature -- Creation
 	make is
 		-- Default creation procedure
@@ -27,7 +22,6 @@ feature -- Creation
 		precursor
 		set_param ("method", "flickr.photos.search")
 	end
-
 
 
 feature -- Flickr API Parameters
@@ -163,6 +157,5 @@ feature -- Flickr API Parameters
 	do
 		set_param ("page", value.out)
 	end
-
 
 end
