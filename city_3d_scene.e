@@ -22,12 +22,30 @@ creation
 
 feature -- Callback
 -- [bonga]
+	photos_search_finished (search: FLICKR_PHOTOS_SEARCH) is
+			-- The search has finished
+	require
+		search_not_void: search /= void
+	do
+
+		io.put_string ("photos_search_finished%N")
+		if search.photos.count > 0 then
+			--flickr_info.set_text (search.cou)
+			flickr_photo := search.photos.first.twin
+			flickr_photo.finished_event.subscribe (agent photo_finished)
+			flickr_photo.load
+		end
+
+	end
+
+
 	photo_finished is
 			-- photo has finished loading
 	do
 		if flickr_photo.is_loaded then
-			-- Remove old image
-			if flickr_image /= flickr_image then
+
+			-- Remove old image if present
+			if flickr_image /= void then
 				remove_component (flickr_image)
 			end
 
@@ -36,8 +54,10 @@ feature -- Callback
 			flickr_image.set_position (10, 240)
 			add_component (flickr_image)
 
+			redraw
+
 			-- Fill label with information about the picture
-			flickr_info.set_text (flickr_photo.tags)
+			--flickr_info.set_text (flickr_photo.tags)
 			-- Move the information label, so it's not overlapping with the picture
 			flickr_info.set_position (10, flickr_image.y + flickr_image.height + 10)
 		end
@@ -52,14 +72,15 @@ feature -- Callback
 			-- Search for the given tags
 			flickr_search := flickr_service.new_photos_search
 			flickr_search.set_tag_mode (flickr_tag_mode_all)
-			flickr_search.set_tags (map_widget.map.name +"," +  map_widget.marked_origin.name)
 			flickr_search.set_per_page (1)
+			flickr_search.set_tags ("zurich" + "," +  map_widget.marked_origin.name)
+			flickr_search.finished_event.subscribe (agent photos_search_finished)
 			flickr_search.send
 
 			-- Load a predefined photo
-			create flickr_photo.make (flickr_service, "348064128", "effac0c55f", "pic", map_widget.map.name + "," + map_widget.marked_origin.name, "gasi", 1, 125)
-			flickr_photo.finished_event.subscribe (agent photo_finished)
-			flickr_photo.load
+--			create flickr_photo.make (flickr_service, "348064128", "effac0c55f", "pic", map_widget.map.name + "," + map_widget.marked_origin.name, "gasi", 1, 125)
+--			flickr_photo.finished_event.subscribe (agent photo_finished)
+--			flickr_photo.load
 			flickr_place := map_widget.marked_origin
 		end
 	end
@@ -381,6 +402,10 @@ feature -- Interface
 
 			create flickr_service.make_with_key (Flickr_api_key)
 			Network_subsystem.enable -- [TODO] disable again
+
+			create flickr_widget.make
+			flickr_widget.set_position (10, 200)
+			add_component (flickr_widget)
 
 			-- title
 			create flickr_title.make_from_text ("flickr")

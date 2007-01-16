@@ -12,14 +12,12 @@ inherit
 	EM_SHARED_BITMAP_FACTORY
 
 create
-	make,
-	make_from_metadata
+	make
 
 feature -- Attributes
 	id: STRING			-- Photo's unique ID
 	secret: STRING		-- Photo's secret
 	title: STRING		-- Photo's title
-	tags: STRING		-- Tags on the photo, separated by commas
 	owner: STRING		-- Photo's owner
 	server_id: INTEGER	-- ID of the server the photo is hosted on
 	farm_id: INTEGER	-- ID of the photo's farm
@@ -37,32 +35,25 @@ feature {NONE} -- Private attributes
 	http_request: HTTP_GET_REQUEST
 
 feature -- Creation
-	make (	a_service: FLICKR_SERVICE;
-			a_id: STRING;
+	make (	a_id: STRING;
 			a_secret: STRING;
 			a_title: STRING;
-			a_tags: STRING;
 			a_owner: STRING;
 			a_farm_id: INTEGER;
 			a_server_id: INTEGER
 		 )
 		-- Creates a photo with the given info
 	require
-		service_not_void: a_service /= Void
 		id_not_void_or_empty: a_id /= Void and then not a_id.is_empty
 		secret_not_void_or_empty: a_secret /= Void and then not a_secret.is_empty
-		title_not_void_or_empty: a_title /= Void and then not a_title.is_empty
-		tags_not_void_or_empty: a_tags /= Void and then not a_tags.is_empty
-		owner_not_void_or_empty: a_owner /= Void and then not a_owner.is_empty
+		title_not_void_or_empty: a_title /= Void
+		pwner_not_void_or_empty: a_owner /= Void and then not a_owner.is_empty
 		farm_id_non_negative: a_farm_id >= 0
 		server_id_non_negative: a_server_id >= 0
 	do
-		service := a_service
-
 		create id.make_from_string (a_id)
 		create secret.make_from_string (a_secret)
 		create title.make_from_string (a_title)
-		create tags.make_from_string (a_tags)
 		create owner.make_from_string (a_owner)
 
 		farm_id := a_farm_id
@@ -73,44 +64,6 @@ feature -- Creation
 
 		create finished_event
 	ensure
-		service_set: service = a_service
-		id_set: id.is_equal (a_id)
-		secret_set: secret.is_equal (a_secret)
-		title_set: title.is_equal (a_title)
-		tags_set: tags.is_equal (a_tags)
-		owner_set: owner.is_equal (a_owner)
-		farm_id_set: farm_id = a_farm_id
-		server_id_set: server_id = a_server_id
-	end
-
-	make_from_metadata (
-			a_id: STRING;
-			a_secret: STRING;
-			a_title: STRING;
-			a_owner: STRING;
-			a_farm_id: INTEGER;
-			a_server_id: INTEGER
-		 )
-		-- Creates a photo with given metadata
-	require
-		id_not_void_or_empty: a_id /= Void and then not a_id.is_empty
-		secret_not_void_or_empty: a_secret /= Void and then not a_secret.is_empty
-		title_not_void_or_empty: a_title /= Void and then not a_title.is_empty
-		owner_not_void_or_empty: a_owner /= Void and then not a_owner.is_empty
-		farm_id_non_negative: a_farm_id >= 0
-		server_id_non_negative: a_server_id >= 0
-	do
-		create id.make_from_string (a_id)
-		create secret.make_from_string (a_secret)
-		create title.make_from_string (a_title)
-		create owner.make_from_string (a_owner)
-
-		farm_id := a_farm_id
-		server_id := a_server_id
-
-		is_loaded := false
-		has_loading_failed := false
-	ensure
 		id_set: id.is_equal (a_id)
 		secret_set: secret.is_equal (a_secret)
 		title_set: title.is_equal (a_title)
@@ -118,7 +71,6 @@ feature -- Creation
 		farm_id_set: farm_id = a_farm_id
 		server_id_set: server_id = a_server_id
 	end
-
 
 feature {NONE} -- Callbacks
 
@@ -149,13 +101,13 @@ feature -- Status
 
 	http_host: STRING is
 		-- Returns the http host of the farm
-	once
+	do
 		Result := "farm" + farm_id.out + ".static.flickr.com"
 	end
 
 	http_file: STRING is
 		-- Returns the path where the photo is stored on the server
-	once
+	do
 		Result := "/" + server_id.out + "/" + id + "_" + secret + "_m.jpg"
 	end
 

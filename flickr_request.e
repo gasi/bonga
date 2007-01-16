@@ -14,18 +14,23 @@ feature {NONE} -- Private attributes
 	params: HASH_TABLE[STRING, STRING]
 	http_request: HTTP_GET_REQUEST
 
+feature -- Access
+	has_failed: BOOLEAN
+	finished_event: EM_EVENT_CHANNEL [TUPLE []]
+
 feature {NONE} -- Callback
 	on_http_finished is
 		-- Called when the HTTP_REQUEST has finished loading / an error occured
 	do
-		--io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
-		parse_from_string (http_request.data.out)
+		io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
+		parse_xml (http_request.data.out)
 	end
 
 feature {NONE} -- XML
-	parse_from_string (a_string:STRING)
+	parse_xml (a_string: STRING)
 		-- Translates raw xml data
 	deferred
+
 	end
 
 
@@ -36,6 +41,8 @@ feature {NONE} -- Creation
 		create params.make (20)
 		create http_request.make (Flickr_http_host, Flickr_http_port, Flickr_http_file)
 		http_request.finished_event.subscribe (agent on_http_finished)
+		create finished_event
+		has_failed := false
 	end
 
 
@@ -46,7 +53,10 @@ feature -- Public features
 	require
 	local
 		http_path: STRING
+		encoded_key: HTTP_ENCODED_STRING
+		encoded_value: HTTP_ENCODED_STRING
 	do
+		has_failed := false
 		create http_path.make_from_string (Flickr_http_file)
 		http_path.append ("?")
 
@@ -55,8 +65,9 @@ feature -- Public features
 		until
 			params.after
 		loop
-			io.put_string (params.key_for_iteration + ": " + params.item_for_iteration + "%N")
-			http_path.append (params.key_for_iteration + "=" + params.item_for_iteration + "&")
+			create encoded_key.make_from_string (params.key_for_iteration)
+			create encoded_value.make_from_string (params.item_for_iteration)
+			http_path.append (encoded_key + "=" + encoded_value + "&")
 			params.forth
 		end
 		http_path.remove_tail (1)

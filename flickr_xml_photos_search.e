@@ -7,13 +7,23 @@ indexing
 class
 	FLICKR_XML_PHOTOS_SEARCH
 
+create
+	make
 
 feature -- Access
 	photos: FLICKR_PHOTO_LIST
+	photos_handler:  EM_EVENT_CHANNEL [TUPLE []]
+
+feature -- Creation
+	make is
+			-- Default creation procedure
+	do
+		create photos_handler
+	end
 
 
 feature -- Implementation
-	parse_from_string (a_string:STRING)
+	parse_from_string (a_string: STRING)
 			-- Parses the raw xml data
 	local
 		parser: XM_PARSER
@@ -23,7 +33,8 @@ feature -- Implementation
 		response: STRING -- Test response
 	do
 		-- Test response
-		response := "<rsp stat=%"ok%"><photos page=%"1%" pages=%"4967%" perpage=%"10%" total=%"49662%"><photo id=%"355880247%" owner=%"98775937@N00%" secret=%"5a8b4059c8%" server=%"130%" farm=%"1%" title=%"P1000118%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/><photo id=%"355873391%" owner=%"98775937@N00%" secret=%"e2c6e752d1%" server=%"131%" farm=%"1%" title=%"P1000115%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/></photos></rsp>"
+		--response := "<?xml version=%"1.0%" encoding=%"utf-8%" ?>%N<rsp stat=%"ok%"><photos page=%"1%" pages=%"4967%" perpage=%"10%" total=%"49662%"><photo id=%"355880247%" owner=%"98775937@N00%" secret=%"5a8b4059c8%" server=%"130%" farm=%"1%" title=%"P1000118%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/><photo id=%"355873391%" owner=%"98775937@N00%" secret=%"e2c6e752d1%" server=%"131%" farm=%"1%" title=%"P1000115%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/></photos></rsp>"
+		response := a_string
 
 		io.put_string ("FLICKR_XML_PHOTOS_SEARCH: Initializing...%N")
 
@@ -46,7 +57,8 @@ feature -- Implementation
 		else
 			io.put_string ("FLICKR_XML_PHOTOS_SEARCH Processing...%N")
 			processor.process_document (tree_pipe.document)
-			photos := processor.photos
+			--photos := processor.photos
+			photos_handler.publish ([processor.photos])
 		end
 	end
 

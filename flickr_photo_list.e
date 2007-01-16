@@ -9,5 +9,9 @@ class
 
 inherit
 	LINKED_LIST [FLICKR_PHOTO]
+		export {ANY} all end
+
+create
+	make
 
 end
