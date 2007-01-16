@@ -10,10 +10,15 @@ class
 inherit
 	FLICKR_REQUEST
 		redefine make end
-	FLICKR_XML_PHOTOS_SEARCH
 
 create {FLICKR_SERVICE}
 	make
+
+feature -- Access
+	photos: FLICKR_PHOTO_LIST
+
+feature {NONE} -- Private attributes
+	xml_parser: FLICKR_XML_PHOTOS_SEARCH
 
 feature -- Creation
 	make is
@@ -23,6 +28,25 @@ feature -- Creation
 		set_param ("method", "flickr.photos.search")
 	end
 
+feature {NONE} -- XML
+	photos_handler (a_photos: FLICKR_PHOTO_LIST)--FLICKR_PHOTO_LIST)
+		-- Receives a list of photos returned by the search
+	require
+		photos_not_void: a_photos /= void
+	do
+		--io.put_string ("photos_handler: " + a_photos.count.out + " photos.%N")
+		photos := a_photos.deep_twin
+		finished_event.publish ([Current])
+	end
+
+	parse_xml (a_string: STRING)
+		-- Translates raw xml data
+	do
+		create xml_parser.make
+		xml_parser.photos_handler.subscribe (agent photos_handler (?))
+		io.put_string ("parse_xml:%N" + a_string + "%N%N")
+		xml_parser.parse_from_string (a_string)
+	end
 
 feature -- Flickr API Parameters
 	set_user_id (value: STRING)

@@ -16,6 +16,7 @@ end
 
 feature -- Access
 	photos: FLICKR_PHOTO_LIST
+	--photos: LINKED_LIST [FLICKR_PHOTO]
 
 feature -- Processing
 	process_document (doc: XM_DOCUMENT)
@@ -34,7 +35,7 @@ feature -- Processing
 	do
 		io.put_string ("FLICKR_XML_PHOTOS_PROCESSOR::process_document%N")
 
-		create photos
+		create photos.make
 
 		photos_elements := doc.root_element.element_by_name ("photos").elements
 
@@ -57,7 +58,7 @@ feature -- Processing
 			photo_farm := photos_elements.item (index).attribute_by_name ("farm").value.to_integer
 			photo_server := photos_elements.item (index).attribute_by_name ("server").value.to_integer
 
-		 	photos.extend (create {FLICKR_PHOTO}.make_from_metadata(photo_id, photo_secret, photo_title, photo_owner, photo_farm, photo_server))
+		 	photos.extend (create {FLICKR_PHOTO}.make (photo_id, photo_secret, photo_title, photo_owner, photo_farm, photo_server))
 
 			index := index + 1
 		end
