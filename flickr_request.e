@@ -15,20 +15,23 @@ feature {NONE} -- Private attributes
 	http_request: HTTP_GET_REQUEST
 
 feature -- Access
-	has_failed: BOOLEAN
-	finished_event: EM_EVENT_CHANNEL [TUPLE []]
+	has_failed: BOOLEAN	-- Has an error occured during processing the request?
+	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the request has finished
 
 feature {NONE} -- Callback
 	on_http_finished is
-		-- Called when the HTTP_REQUEST has finished loading / an error occured
+		-- Called when the HTTP_REQUEST has finished loading or an error occured
 	do
-		io.put_string ("on_http_finish%N%N" + http_request.data + "%N%N")
-		parse_xml (http_request.data.out)
+		has_failed := http_request.has_failed
+		if not http_request.has_failed then
+			parse_xml (http_request.data.out)
+		end
 	end
 
 feature {NONE} -- XML
 	parse_xml (a_string: STRING)
 		-- Translates raw xml data
+		-- Needs to be implemented by the child class
 	deferred
 
 	end
@@ -49,35 +52,28 @@ feature {NONE} -- Creation
 feature -- Public features
 	send
 	is
-		-- Sends the request to the server
-	require
+		-- Creates the http request and sends it to the server
 	local
-		http_path: STRING
-		encoded_key: HTTP_ENCODED_STRING
-		encoded_value: HTTP_ENCODED_STRING
+		http_path: STRING -- The encoded path
 	do
 		has_failed := false
+
+		-- Create path by appending encoded keys and values
 		create http_path.make_from_string (Flickr_http_file)
 		http_path.append ("?")
-
 		from
 			params.start
 		until
 			params.after
 		loop
-			create encoded_key.make_from_string (params.key_for_iteration)
-			create encoded_value.make_from_string (params.item_for_iteration)
-			http_path.append (encoded_key + "=" + encoded_value + "&")
+			http_path.append (create {HTTP_ENCODED_STRING}.make_from_string (params.key_for_iteration) + "=" + create {HTTP_ENCODED_STRING}.make_from_string (params.item_for_iteration) + "&")
 			params.forth
 		end
 		http_path.remove_tail (1)
-		io.put_string (http_path)
-
 		http_request.set_path (http_path)
+
+		-- Start the request
 		http_request.start
-
-	ensure
-
 	end
 
 	get_param (name: STRING): STRING
@@ -92,7 +88,7 @@ feature -- Public features
 
 		Result := ""
 		if (params.found) then
-			Result := params.found_item
+			Result := params.found_item.twin
 		end
 	ensure
 		result_set: Result /= void
@@ -106,7 +102,7 @@ feature -- Public features
 		name_not_empty: not name.is_empty
 		value_not_void: value /= Void
 	do
-		params.put (value, name)
+		params.put (value.twin, name)
 	ensure
 		param_is_set: get_param (name).is_equal (value)
 	end

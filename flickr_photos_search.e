@@ -15,36 +15,34 @@ create {FLICKR_SERVICE}
 	make
 
 feature -- Access
-	photos: FLICKR_PHOTO_LIST
+	photos: FLICKR_PHOTO_LIST	-- The photos matching the search criterias
 
 feature {NONE} -- Private attributes
 	xml_parser: FLICKR_XML_PHOTOS_SEARCH
 
 feature -- Creation
 	make is
-		-- Default creation procedure
+		-- Creation procedure
 	do
 		precursor
 		set_param ("method", "flickr.photos.search")
 	end
 
 feature {NONE} -- XML
-	photos_handler (a_photos: FLICKR_PHOTO_LIST)--FLICKR_PHOTO_LIST)
-		-- Receives a list of photos returned by the search
+	photos_handler (a_photos: FLICKR_PHOTO_LIST)
+		-- Receives a list of photos returned by the search and passes it to the `finished_event' subscribers.
 	require
 		photos_not_void: a_photos /= void
 	do
-		--io.put_string ("photos_handler: " + a_photos.count.out + " photos.%N")
 		photos := a_photos.deep_twin
 		finished_event.publish ([Current])
 	end
 
 	parse_xml (a_string: STRING)
-		-- Translates raw xml data
+		-- Creates the `xml_parser' and lets it translate the raw xml data
 	do
 		create xml_parser.make
 		xml_parser.photos_handler.subscribe (agent photos_handler (?))
-		io.put_string ("parse_xml:%N" + a_string + "%N%N")
 		xml_parser.parse_from_string (a_string)
 	end
 
@@ -148,7 +146,6 @@ feature -- Flickr API Parameters
 		-- ~16	Street level
 	require
 		value_in_range: value >= 1 and value <= 16
-		disabled: false
 	do
 		set_param ("accuracy", value.out)
 	end
