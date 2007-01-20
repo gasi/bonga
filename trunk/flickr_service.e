@@ -10,19 +10,15 @@ class
 create
 	make_with_key
 
-feature -- Constants
-
-
 feature -- Access
-	http_request: HTTP_GET_REQUEST
-	api_key: STRING
+	api_key: STRING -- The API key that is needed to access the flickr services
 
 feature -- Creation
 	make_with_key (a_api_key: STRING)
 		is
 			-- Creates a new instance of FLICKR_SERVICE with the given API key.
 		require
-			api_key_not_void: a_api_key /= Void
+			api_key_not_empty: a_api_key /= Void and then not a_api_key.is_empty
 		do
 			api_key := a_api_key
 		ensure
@@ -32,8 +28,6 @@ feature -- Creation
 feature -- Photos
 	new_photos_search: FLICKR_PHOTOS_SEARCH is
 		-- Returns an unique FLICKR_PHOTOS_SEARCH object
-	require
-		is_set_up: true
 	do
 		create Result.make
 		Result.set_param ("api_key", api_key)
@@ -41,9 +35,7 @@ feature -- Photos
 		result_not_void: Result /= Void
 	end
 
-
-feature {NONE} -- Implementation
-
 invariant
+	api_key_set: api_key /= void and then not api_key.is_empty
 
 end

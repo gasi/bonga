@@ -25,8 +25,6 @@ feature -- Attributes
 	is_loaded: BOOLEAN	-- Has the binary representation of the image already been loaded?
 	has_loading_failed: BOOLEAN -- Did an error occur while trying to download the photo?
 
-	service: FLICKR_SERVICE -- Service that was used to retrieve the photo
-
 	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the photo has been loaded or en error occured
 
 	bitmap: EM_BITMAP -- Loaded photo

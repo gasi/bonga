@@ -1,5 +1,5 @@
 indexing
-	description: "'Typedef' for a list of FLICKR_PHOTOs"
+	description: "'Typedef' for a list of `FLICKR_PHOTO's"
 	author: "Boris Bluntschli <borisb@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"

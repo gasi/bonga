@@ -11,30 +11,36 @@ create
 	make
 
 feature -- Access
-	http: EM_HTTP_PROTOCOL
-	data: STRING
-
-	finished_event: EM_EVENT_CHANNEL [TUPLE []]
-
-	hostname: STRING
-
+	http: EM_HTTP_PROTOCOL -- The `EM_HTTP_PROTOCOL' we're wrapping here
+	data: STRING -- Raw returned data
+	hostname: STRING -- The hostname
+	path: STRING -- The path to the file we are requesting
+	port: INTEGER -- The remote port
+	finished_event: EM_EVENT_CHANNEL [TUPLE []] -- Event that is published when the event has finished or failed
 
 feature {NONE} -- Creation
 	make (a_hostname: STRING; a_port: INTEGER; a_path: STRING) is
-		-- Default creation procedure
+		-- Creation procedure
+	require
+		a_hostname_not_void_or_empty: a_hostname /= void and then not a_hostname.is_empty
+		a_path_not_void_or_empty: a_path /= void and then not a_path.is_empty
+		a_port_not_void_or_negative: a_port /= void and then a_port >= 0
 	do
 		create data.make_empty
-
 		create finished_event
 
 		create http.make
 		set_hostname (a_hostname)
-		http.set_port (a_port)
-		http.set_path (a_path)
+		set_port (a_port)
+		set_path (a_path)
 		http.connection_established_event.subscribe (agent connection_established_handler)
 		http.connection_closed_event.subscribe (agent connection_closed_handler)
 		http.connection_failed_event.subscribe (agent connection_failed_handler)
 		http.data_received_event.subscribe (agent data_handler (?))
+	ensure
+		hostname_is_set: hostname.is_equal (a_hostname)
+		path_is_set: path.is_equal (a_path)
+		port_is_set: port = a_port
 	end
 
 feature -- Status
@@ -46,20 +52,39 @@ feature -- Status
 		Result := failed
 	end
 
+feature -- Setters
 
-feature -- Implementation
-
-	set_hostname (new_hostname: STRING) is
+	set_hostname (a_hostname: STRING) is
 		-- Sets the hostname
+	require
+		a_hostname_not_void_or_empty: a_hostname /= void and then not a_hostname.is_empty
 	do
-		hostname := new_hostname
-		http.set_hostname (new_hostname)
+		hostname := a_hostname.twin
+		http.set_hostname (a_hostname)
+	ensure
+		hostname_is_set: hostname.is_equal (a_hostname)
 	end
 
-	set_path (path: STRING) is
+	set_path (a_path: STRING) is
 		-- Sets the path
+	require
+		a_path_not_void_or_empty: a_path /= void and then not a_path.is_empty
 	do
+		path := a_path.twin
 		http.set_path (path)
+	ensure
+		path_is_set: path.is_equal (a_path)
+	end
+
+	set_port (a_port: INTEGER) is
+		-- Sets the path
+	require
+		a_port_not_void_or_negative: a_port /= void and then a_port >= 0
+	do
+		port := a_port
+		http.set_port (port)
+	ensure
+		port_is_set: port = a_port
 	end
 
 	start is
@@ -88,14 +113,12 @@ feature -- Callback
 	connection_established_handler is
 		-- Called when the connection has been established
 	do
-		io.put_string (hostname + ": connection established%N")
 	    http.get
 	end
 
 	connection_failed_handler is
 		-- Called when the connection could not be established
 	do
-		io.put_string (hostname + ": connection failed%N")
 		failed := true
 		finished
 	end
