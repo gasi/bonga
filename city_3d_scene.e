@@ -403,9 +403,9 @@ feature -- Interface
 			create flickr_service.make_with_key (Flickr_api_key)
 			Network_subsystem.enable -- [TODO] disable again
 
-			create flickr_widget.make
-			flickr_widget.set_position (10, 200)
-			add_component (flickr_widget)
+			--create flickr_widget.make
+			--flickr_widget.set_position (10, 200)
+			--add_component (flickr_widget)
 
 			-- title
 			create flickr_title.make_from_text ("flickr")
