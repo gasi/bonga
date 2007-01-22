@@ -1,5 +1,5 @@
 indexing
-	description: "Responsible for parsing the Flickr request data into an FLICKR_PHOTO_LIST object."
+	description: "Parses Flickr API request data into an FLICKR_PHOTO_LIST object."
 	author: "Daniel Gasienica <gdani@student.ethz.ch>"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -24,10 +24,10 @@ feature -- Creation
 
 feature -- Implementation
 	parse_from_string (a_string: STRING)
-			-- Parses the raw xml data
+			-- Parses raw XML data
 	local
 		parser: XM_PARSER
-		tree_pipe: XM_TREE_CALLBACKS_PIPE 		-- tree generating callbacks
+		tree_pipe: XM_TREE_CALLBACKS_PIPE		-- tree generating callbacks
 		processor: FLICKR_XML_PHOTOS_PROCESSOR 	-- parsing processor
 
 		response: STRING -- Test response
@@ -46,18 +46,15 @@ feature -- Implementation
 		parser.set_string_mode_unicode
 		parser.set_callbacks (tree_pipe.start)
 
-		-- Sample Data
+
 		parser.parse_from_string (response)
 
-		-- Real Data
-		-- parser.parse_from_string (a_string)
 
 		if not parser.is_correct then
 			io.put_string ("FLICKR_XML_PHOTOS_SEARCH: Error!%N")
 		else
 			io.put_string ("FLICKR_XML_PHOTOS_SEARCH Processing...%N")
 			processor.process_document (tree_pipe.document)
-			--photos := processor.photos
 			photos_handler.publish ([processor.photos])
 		end
 	end

@@ -15,7 +15,7 @@ feature {NONE} -- API Configuration
 	Flickr_api_key: STRING is
 		-- API key
 	do
-		Result := "" -- Enter your API key here!
+		Result := "7f57b3faaf5e0b0a65bf28675c4eab7c" -- Enter your API key here!
 	ensure
 		api_key_has_been_entered: Result /= void and then not Result.is_empty
 	end

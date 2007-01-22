@@ -16,7 +16,6 @@ end
 
 feature -- Access
 	photos: FLICKR_PHOTO_LIST
-	--photos: LINKED_LIST [FLICKR_PHOTO]
 
 feature -- Processing
 	process_document (doc: XM_DOCUMENT)
@@ -44,12 +43,12 @@ feature -- Processing
 		until
 			index > photos_elements.count
 		loop
-			io.put_string ("Flickr Photo ID: " + photos_elements.item (index).attribute_by_name ("id").value + "%N")
-			io.put_string ("Flickr Photo Secret: " + photos_elements.item (index).attribute_by_name ("secret").value + "%N")
-			io.put_string ("Flickr Photo Title: " + photos_elements.item (index).attribute_by_name ("title").value + "%N")
-			io.put_string ("Flickr Photo Owner: " + photos_elements.item (index).attribute_by_name ("owner").value + "%N")
-			io.put_string ("Flickr Photo Farm: " + photos_elements.item (index).attribute_by_name ("farm").value + "%N")
-			io.put_string ("Flickr Photo Server: " + photos_elements.item (index).attribute_by_name ("server").value + "%N")
+--			io.put_string ("Flickr Photo ID: " + photos_elements.item (index).attribute_by_name ("id").value + "%N")
+--			io.put_string ("Flickr Photo Secret: " + photos_elements.item (index).attribute_by_name ("secret").value + "%N")
+--			io.put_string ("Flickr Photo Title: " + photos_elements.item (index).attribute_by_name ("title").value + "%N")
+--			io.put_string ("Flickr Photo Owner: " + photos_elements.item (index).attribute_by_name ("owner").value + "%N")
+--			io.put_string ("Flickr Photo Farm: " + photos_elements.item (index).attribute_by_name ("farm").value + "%N")
+--			io.put_string ("Flickr Photo Server: " + photos_elements.item (index).attribute_by_name ("server").value + "%N")
 
 			photo_id := photos_elements.item (index).attribute_by_name ("id").value
 			photo_secret := photos_elements.item (index).attribute_by_name ("secret").value
