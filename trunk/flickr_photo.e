@@ -102,11 +102,18 @@ feature -- Status
 		Result := "farm" + farm_id.out + ".static.flickr.com"
 	end
 
-	http_file: STRING is
+	http_file (size: STRING): STRING is
 		-- Returns the path where the photo is stored on the server
 	do
-		Result := "/" + server_id.out + "/" + id + "_" + secret + "_m.jpg"
+		Result := "/" + server_id.out + "/" + id + "_" + secret + "_" + size + ".jpg"
 	end
+
+	url (size: STRING): STRING is
+		-- Returns the complete URL
+	do
+		Result := "http://" + http_host + http_file (size)
+	end
+
 
 feature -- Public features
 	load is
@@ -116,7 +123,7 @@ feature -- Public features
 	do
 		has_loading_failed := false
 
-		create http_request.make (http_host, Flickr_http_port, http_file)
+		create http_request.make (http_host, Flickr_http_port, http_file ("m"))
 
 		http_request.finished_event.subscribe (agent on_http_finished)
 		http_request.start
