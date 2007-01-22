@@ -61,6 +61,11 @@ feature -- Callbacks
 		else
 			status.set_text ("(0/0)")
 			info.set_text ("No photos were found.")
+
+			-- Remove old image if present
+			if image /= void then
+				remove_widget (image)
+			end
 		end
 	end
 
@@ -68,8 +73,7 @@ feature -- Callbacks
 	on_photo_loaded
 			-- photo has finished loading
 	do
-		if photo.is_loaded then
-
+		if not photo.has_loading_failed then
 			-- Remove old image if present
 			if image /= void then
 				remove_widget (image)
@@ -89,6 +93,8 @@ feature -- Callbacks
 
 			-- Move the information label, so it's not overlapping with the picture
 			info.set_position (10, image.y + image.height + 10)
+		else
+			info.set_text ("Loading the photo has failed.")
 		end
 	ensure
 		image_exists: image /= Void

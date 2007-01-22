@@ -81,9 +81,7 @@ feature {NONE} -- Callbacks
 		is_loaded := not http_request.has_failed
 		has_loading_failed := http_request.has_failed
 
-		if http_request.has_failed then
-			io.put_string ("Loading failed.")
-		else
+		if not http_request.has_failed then
 			-- Using SDL, create a EM_BITMAP from the picture in memory
 			p := http_request.data.to_c
 			bitmap_factory.create_bitmap_from_c_array ($p, http_request.data.count)
