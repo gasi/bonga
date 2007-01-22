@@ -84,6 +84,7 @@ feature -- Callbacks
 			-- Load new image into an image widget
 			create image.make_from_bitmap (photo.bitmap)
 			image.set_position (10, previous_button.y + previous_button.height + 10)
+			image.mouse_clicked_event.subscribe (agent on_image_click (?))
 			add_widget (image)
 
 			redraw
@@ -120,6 +121,15 @@ feature -- Callbacks
 
 			place := map.marked_origin
 		end
+	end
+
+	on_image_click (event: EM_MOUSEBUTTON_EVENT)
+		-- Image click handler
+	local
+		execution_env: EXECUTION_ENVIRONMENT
+	do
+		create execution_env
+		execution_env.system ("start " + search.photos.i_th (current_photo).url ("o"))
 	end
 
 	on_previous_click
