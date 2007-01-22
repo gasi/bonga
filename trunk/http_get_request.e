@@ -54,7 +54,7 @@ feature -- Status
 
 feature -- Setters
 
-	set_hostname (a_hostname: STRING) is
+	set_hostname (a_hostname: like hostname) is
 		-- Sets the hostname
 	require
 		a_hostname_not_void_or_empty: a_hostname /= void and then not a_hostname.is_empty
@@ -65,7 +65,7 @@ feature -- Setters
 		hostname_is_set: hostname.is_equal (a_hostname)
 	end
 
-	set_path (a_path: STRING) is
+	set_path (a_path: like path) is
 		-- Sets the path
 	require
 		a_path_not_void_or_empty: a_path /= void and then not a_path.is_empty
@@ -76,7 +76,7 @@ feature -- Setters
 		path_is_set: path.is_equal (a_path)
 	end
 
-	set_port (a_port: INTEGER) is
+	set_port (a_port: like port) is
 		-- Sets the path
 	require
 		a_port_not_void_or_negative: a_port /= void and then a_port >= 0
@@ -104,7 +104,7 @@ feature -- Setters
 
 feature -- Callback
 
-	data_handler (new_data: STRING_8) is
+	data_handler (new_data: like data) is
 		-- Called when some data arrives
 	do
 		data.append (new_data)

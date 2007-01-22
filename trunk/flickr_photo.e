@@ -118,9 +118,6 @@ feature -- Public features
 	do
 		has_loading_failed := false
 
-		io.put_string ("http_host: " + http_host + "%N")
-		io.put_string ("http_file: " + http_file + "%N")
-
 		create http_request.make (http_host, Flickr_http_port, http_file)
 
 		http_request.finished_event.subscribe (agent on_http_finished)
