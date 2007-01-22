@@ -32,17 +32,17 @@ feature -- Creation
 		create_components
 
 	ensure
---		-- Flickr API
---		service_set: service /= Void
+		-- Flickr API
+		service_set: service /= Void
 
---		-- Widget
---		info_exists: info /= Void
---		logo_exists: logo /= Void
+		-- Widget
+		info_exists: info /= Void
+		logo_exists: logo /= Void
 
---		-- Widget Navigation
---		previous_button_exists: service /= Void
---		next_button_exists: service /= Void
---		status_exists: service /= Void
+		-- Widget Navigation
+		previous_button_exists: service /= Void
+		next_button_exists: service /= Void
+		status_exists: service /= Void
 	end
 
 
@@ -60,6 +60,7 @@ feature -- Callbacks
 			photo.load
 		else
 			status.set_text ("(0/0)")
+			info.set_text ("No photos were found.")
 		end
 	end
 
@@ -101,7 +102,7 @@ feature -- Callbacks
 
 			-- Improve responsivity by displaying
 			-- a status message
-			info.set_text ("Loading...")
+			info.set_text ("Searching...")
 
 			-- Search for the given tags
 			search := service.new_photos_search
@@ -125,14 +126,7 @@ feature -- Callbacks
 		then
 			current_photo := current_photo - 1
 			update_status
-
-			if photo.finished_event.has (agent on_photo_loaded) then
-				photo.finished_event.unsubscribe (agent on_photo_loaded)
-			end
-
-			photo := search.photos.i_th (current_photo).twin
-			photo.finished_event.subscribe (agent on_photo_loaded)
-			photo.load
+			load_current_photo
 		end
 
 	end
@@ -147,14 +141,7 @@ feature -- Callbacks
 		then
 			current_photo := current_photo + 1
 			update_status
-
-			if photo.finished_event.has (agent on_photo_loaded) then
-				photo.finished_event.unsubscribe (agent on_photo_loaded)
-			end
-
-			photo := search.photos.i_th (current_photo).twin
-			photo.finished_event.subscribe (agent on_photo_loaded)
-			photo.load
+			load_current_photo
 		end
 	end
 
@@ -217,6 +204,37 @@ feature {NONE} -- Implementation
 		else
 			status.set_text ("(0/0)")
 		end
+
+		if search /= void and then search.photos /= void then
+			-- When the last photo is displayed, disable the `next_button'
+			if current_photo = search.photos.count then
+				next_button.disable
+			else
+				next_button.enable
+			end
+
+			-- When the first photo is displayed, disable the `previous_button'
+			if current_photo = 1 then
+				previous_button.disable
+			else
+				previous_button.enable
+			end
+		end
+	end
+
+	load_current_photo
+		-- Loads the currently selected photo and displays it
+	do
+		if photo.finished_event.has (agent on_photo_loaded) then
+			photo.finished_event.unsubscribe (agent on_photo_loaded)
+		end
+
+		photo := search.photos.i_th (current_photo).twin
+		photo.finished_event.subscribe (agent on_photo_loaded)
+		photo.load
+
+		-- Improve responsivity by displaying a status message
+		info.set_text ("Loading photo...")
 	end
 
 	create_components
@@ -248,6 +266,8 @@ feature {NONE} -- Implementation
 		-- Info
 		create info.make_from_text ("Please select a stop.")
 		info.set_position (previous_button.x, previous_button.y + previous_button.height + 5)
+		info.set_width (180)
+		info.set_multilined (true)
 		add_widget (info)
 
 	ensure
