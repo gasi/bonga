@@ -15,78 +15,10 @@ inherit
 	EXCEPTIONS
 		export {NONE} all end
 
-	FLICKR_CONSTANTS
+--	FLICKR_CONSTANTS
 
 creation
 	make
-
-feature -- Callback
--- [bonga]
-	photos_search_finished (search: FLICKR_PHOTOS_SEARCH) is
-			-- The search has finished
-	require
-		search_not_void: search /= void
-	do
-
-		io.put_string ("photos_search_finished%N")
-		if search.photos.count > 0 then
-			--flickr_info.set_text (search.cou)
-			flickr_photo := search.photos.first.twin
-			flickr_photo.finished_event.subscribe (agent photo_finished)
-			flickr_photo.load
-		end
-
-	end
-
-
-	photo_finished is
-			-- photo has finished loading
-	do
-		if flickr_photo.is_loaded then
-
-			-- Remove old image if present
-			if flickr_image /= void then
-				remove_component (flickr_image)
-			end
-
-			-- Load new image into an image widget
-			create flickr_image.make_from_bitmap (flickr_photo.bitmap)
-			flickr_image.set_position (10, 240)
-			add_component (flickr_image)
-
-			redraw
-
-			-- Fill label with information about the picture
-			--flickr_info.set_text (flickr_photo.tags)
-			-- Move the information label, so it's not overlapping with the picture
-			flickr_info.set_position (10, flickr_image.y + flickr_image.height + 10)
-		end
-	end
-
-	on_map_click (event: EM_MOUSEBUTTON_EVENT) is
-			-- User clicked on map - he might have selected a stop
-	do
-		-- Has a new origin been selected?
-		if map_widget.marked_origin /= void and then map_widget.marked_origin /= flickr_place then
-
-			-- Search for the given tags
-			flickr_search := flickr_service.new_photos_search
-			flickr_search.set_tag_mode (flickr_tag_mode_all)
-			flickr_search.set_per_page (1)
-			flickr_search.set_tags ("zurich" + "," +  map_widget.marked_origin.name)
-			flickr_search.finished_event.subscribe (agent photos_search_finished)
-			flickr_search.send
-
-			-- Load a predefined photo
---			create flickr_photo.make (flickr_service, "348064128", "effac0c55f", "pic", map_widget.map.name + "," + map_widget.marked_origin.name, "gasi", 1, 125)
---			flickr_photo.finished_event.subscribe (agent photo_finished)
---			flickr_photo.load
-			flickr_place := map_widget.marked_origin
-		end
-	end
-
-
--- [/bonga]
 
 feature -- Interface
 
@@ -398,36 +330,20 @@ feature -- Interface
 			toolbar_panel.add_widget (traffic_line_ride_button)
 			traffic_line_ride_button.hide
 
-			-- [bonga]
 
-			create flickr_service.make_with_key (Flickr_api_key)
-			Network_subsystem.enable -- [TODO] disable again
+			-- <bonga>
+			create flickr_widget.make
+			flickr_widget.set_position (0, ((height - 500) / 2).rounded)
+			flickr_widget.set_dimension (200, 500)
+			flickr_widget.set_background_color (bg_color)
+			flickr_widget.set_map (map_widget)
 
-			--create flickr_widget.make
-			--flickr_widget.set_position (10, 200)
-			--add_component (flickr_widget)
+			-- Setup listener for map events
+			map_widget.mouse_clicked_event.subscribe (agent flickr_widget.on_map_click (?))
 
-			-- title
-			create flickr_title.make_from_text ("flickr")
-			flickr_title.set_position (10, 200)
-			toolbar_panel_left.add_widget (flickr_title)
-			map_widget.mouse_clicked_event.subscribe (agent on_map_click (?))
+			toolbar_panel_left.add_widget (flickr_widget)
+			-- </bonga>
 
-			-- logo
-			create flickr_logo.make_from_file ("logo.png")
-			flickr_logo.set_position (10, 200)
-			toolbar_panel_left.add_widget (flickr_logo)
-
-			-- image
-			-- 240,10 - 180x??
-
-			-- info
-			create flickr_info.make_from_text ("No image loaded.")
-			flickr_info.set_position (10, 240)
-			flickr_info.set_background_color (bg_color)
-			add_component (flickr_info)
-
-			-- [/BONGA]
 
 			-- adding zurich_big.xml as default using platform independent paths
 			s := fs.pathname ("..", "map")
@@ -714,28 +630,15 @@ feature {NONE} -- Implementation
 	map_widget: CITY_3D_MAP_WIDGET
 			-- The 3 dimensional representation of the map
 
-	-- [bonga]
-	flickr_service: FLICKR_SERVICE
-	flickr_photo: FLICKR_PHOTO
-	flickr_image: EM_IMAGEPANEL
+--	<bonga>
 	flickr_widget: TRAFFIC_FLICKR_WIDGET
-	flickr_info: EM_LABEL
-	flickr_place: TRAFFIC_PLACE
-	flickr_search: FLICKR_PHOTOS_SEARCH
-
-	-- widgets
-	flickr_logo: EM_IMAGEPANEL
-
-	flickr_title: EM_LABEL
-			-- Displays an image from flickr
-	-- [/bonga]
+--	</bonga>
 
 --	update_shortest_path_description (a_description: STRING) is
 --			-- Update the shortest path description
 --		do
 --			path_description.set_text (a_description)
 --		end
-
 
 --	number_of_buildings: INTEGER
 --			-- Number of buildings on the map

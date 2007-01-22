@@ -70,6 +70,7 @@ feature -- Creation
 		server_id_set: server_id = a_server_id
 	end
 
+
 feature {NONE} -- Callbacks
 
 	on_http_finished is
@@ -81,7 +82,7 @@ feature {NONE} -- Callbacks
 		has_loading_failed := http_request.has_failed
 
 		if http_request.has_failed then
-			io.put_string ("Loading failed..")
+			io.put_string ("Loading failed.")
 		else
 			-- Using SDL, create a EM_BITMAP from the picture in memory
 			p := http_request.data.to_c
