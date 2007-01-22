@@ -32,7 +32,7 @@ feature -- Processing
 		photo_farm: INTEGER
 		photo_server: INTEGER
 	do
-		io.put_string ("FLICKR_XML_PHOTOS_PROCESSOR::process_document%N")
+		-- io.put_string ("FLICKR_XML_PHOTOS_PROCESSOR::process_document%N")
 
 		create photos.make
 
@@ -43,6 +43,7 @@ feature -- Processing
 		until
 			index > photos_elements.count
 		loop
+			-- [DEBUG]
 --			io.put_string ("Flickr Photo ID: " + photos_elements.item (index).attribute_by_name ("id").value + "%N")
 --			io.put_string ("Flickr Photo Secret: " + photos_elements.item (index).attribute_by_name ("secret").value + "%N")
 --			io.put_string ("Flickr Photo Title: " + photos_elements.item (index).attribute_by_name ("title").value + "%N")

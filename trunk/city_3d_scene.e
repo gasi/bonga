@@ -338,9 +338,6 @@ feature -- Interface
 			flickr_widget.set_background_color (bg_color)
 			flickr_widget.set_map (map_widget)
 
-			-- Setup listener for map events
-			map_widget.mouse_clicked_event.subscribe (agent flickr_widget.on_map_click (?))
-
 			toolbar_panel_left.add_widget (flickr_widget)
 			-- </bonga>
 

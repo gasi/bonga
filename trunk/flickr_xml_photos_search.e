@@ -36,24 +36,25 @@ feature -- Implementation
 		--response := "<?xml version=%"1.0%" encoding=%"utf-8%" ?>%N<rsp stat=%"ok%"><photos page=%"1%" pages=%"4967%" perpage=%"10%" total=%"49662%"><photo id=%"355880247%" owner=%"98775937@N00%" secret=%"5a8b4059c8%" server=%"130%" farm=%"1%" title=%"P1000118%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/><photo id=%"355873391%" owner=%"98775937@N00%" secret=%"e2c6e752d1%" server=%"131%" farm=%"1%" title=%"P1000115%" ispublic=%"1%" isfriend=%"0%" isfamily=%"0%"/></photos></rsp>"
 		response := a_string
 
-		io.put_string ("FLICKR_XML_PHOTOS_SEARCH: Initializing...%N")
+		--io.put_string ("FLICKR_XML_PHOTOS_SEARCH: Initializing...%N")
 
 		parser := new_xml_parser
 
 		create tree_pipe.make
 		create processor
 
-		parser.set_string_mode_unicode
+		-- [FIXME] Daniel Gasienica
+		-- Performance issues due to unicode support
+		-- parser.set_string_mode_unicode
+		parser.set_string_mode_mixed
 		parser.set_callbacks (tree_pipe.start)
 
-
 		parser.parse_from_string (response)
-
 
 		if not parser.is_correct then
 			io.put_string ("FLICKR_XML_PHOTOS_SEARCH: Error!%N")
 		else
-			io.put_string ("FLICKR_XML_PHOTOS_SEARCH Processing...%N")
+			--io.put_string ("FLICKR_XML_PHOTOS_SEARCH Processing...%N")
 			processor.process_document (tree_pipe.document)
 			photos_handler.publish ([processor.photos])
 		end
